@@ -666,3 +666,90 @@ Foo get_foo(const char *msg) {
     return f;
 }
 ```
+---
+
+Добавьте в класс String реализацию конструктора копирования. Инвариант класса остается тем же (в size хранится размер строки без завершающего 0 символа, str указывает на C-style строку, т. е. с завершающим нулевым символом).
+
+Требования к реализации: вы можете заводить любые вспомогательные методы или функции, но не реализуйте заново методы из предыдущих заданий — они уже реализованы. При реализации не нужно вводить или выводить что-либо. Реализовывать main не нужно. Не используйте функции из cstdlib (malloc, calloc, realloc и free).
+```c++
+#include <cstddef> // size_t
+#include <cstring> // strlen, strcpy
+
+struct String {
+	String(const char *str = "");
+	String(size_t n, char c);
+	~String();
+
+
+    /* Реализуйте конструктор копирования */
+	String(const String &other):
+    size(other.size),
+    str(new char[size + 1])
+    {
+        for (size_t i = 0; i < size; ++i)
+        {
+            str[i] = other.str[i];
+        }
+        str[size] = '\0';
+    }
+
+
+	void append(const String &other);
+
+	size_t size;
+	char *str;
+};
+```
+
+---
+Завершите класс String, добавив к нему оператор присваивания. Будьте аккуратны при работе с памятью. Инвариант класса остается тем же (в size хранится размер строки без завершающего 0 символа, str указывает на C-style строку, т. е. с завершающим нулевым символом).
+
+Требования к реализации: вы можете заводить любые вспомогательные методы или функции, но не реализуйте заново методы из предыдущих заданий — они уже реализованы. При реализации не нужно вводить или выводить что-либо. Реализовывать main не нужно. Не используйте функции из cstdlib (malloc, calloc, realloc и free).
+```c++
+#include <algorithm> // std::swap
+#include <cstddef>   // size_t
+#include <cstring>   // strlen, strcpy
+
+struct String {
+	String(const char *str = "");
+	String(size_t n, char c);
+	String(const String &other);
+	~String();
+
+    /* Реализуйте оператор присваивания */
+	String &operator=(const String &other)
+    {
+        if(this != &other)
+        {
+            if (size == other.size)
+            {
+                for (size_t i = 0; i < size; ++i)
+                {
+                    str[i] = other.str[i];
+                }
+            }
+            else
+            {
+                delete [] str;
+                str = new char[other.size + 1];
+                size = other.size;
+                for (size_t i = 0; i < size; ++i)
+                {
+                    str[i] = other.str[i];
+                }
+                str[size] = '\0';
+            }
+        }
+        
+        return *this;
+    }
+
+	void append(const String &other);
+
+	size_t size;
+	char *str;
+};
+```
+
+---
+
