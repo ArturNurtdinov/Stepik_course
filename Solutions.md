@@ -586,3 +586,83 @@ int &get_i(Cls &cls) {
 ---
 
 Свяжите следующие классы в иерархию наследования: Character (Персонаж), LongRange (Персонаж дальнего действия), Wizard (Маг), SwordsMan (Мечник), Archer (Лучник).Обратите внимание на методы, объявленные в классах — они приведены в качестве описания интерфейса, которым должны обладать классы. Не изменяйте объявлений методов — они даны как подсказка, просто добавьте наследование в определения классов.
+```c++
+#include <string> // std::string
+
+struct Character
+{
+    std::string const & name() const;
+    unsigned health() const;
+};
+
+struct LongRange : Character
+{
+    std::string const & name() const;
+    unsigned health() const;
+
+    unsigned range() const;
+};
+
+struct SwordsMan : Character
+{
+    std::string const & name() const;
+    unsigned health() const;
+
+    unsigned strength() const;    
+};
+
+struct Wizard : LongRange
+{
+    std::string const & name() const;
+    unsigned health() const;
+
+    unsigned range() const;
+
+    unsigned mana() const;
+};
+
+struct Archer : LongRange
+{
+    std::string const & name() const;
+    unsigned health() const;
+
+    unsigned range() const;
+
+    unsigned accuracy() const;
+};
+```
+
+---
+Вам дан класс Foo:
+```c++
+struct Foo {
+    void say() const { std::cout << "Foo says: " << msg << "\n"; }
+protected:
+    Foo(const char *msg) : msg(msg) { }
+private:
+    const char *msg;
+};
+```
+Как видно, создатель класса не хотел чтобы его использовали и "спрятал" конструктор класса. Но вам очень нужен объект этого класса, чтобы передать его в функцию foo_says:
+```c++
+void foo_says(const Foo& foo) { foo.say(); }
+```
+В этом задании вам нужно реализовать функцию get_foo (сигнатура которой намерено не приводится в задании полностью, вам нужно подумать и вывести ее самостоятельно) так, чтобы следующий код компилировался и работал:
+```c++
+foo_says(get_foo(msg));
+```
+Где msg — произвольная C-style строка.
+
+Требования к реализации: при выполнении задания вам разрешено вводить любые вспомогательные функции и классы. Запрещено изменять определение класса Foo или функции foo_says. Вводить или выводить что-либо не нужно. Реализовывать функцию main не нужно.
+```c++
+Foo get_foo(const char *msg) {
+    struct Foo1 : Foo {
+        public:
+        Foo1(const char *msg) : Foo(msg) { }
+    };
+    
+    //Объявляем объект наследник, у которого в качестве аргумента msg и его возвращаем.
+    Foo1 f = Foo1(msg);
+    return f;
+}
+```
