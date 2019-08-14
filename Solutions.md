@@ -750,6 +750,3 @@ struct String {
 	char *str;
 };
 ```
-
----
-
