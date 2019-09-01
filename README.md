@@ -1043,3 +1043,224 @@ Rational operator/(Rational r1, Rational const &r2)
 
 ---
 
+Еще одна важная группа операторов, которые полезно реализовать для класса рациональных чисел — это операторы сравнения. Реализуйте операторы <, <=, >, >=, ==, != для класса Rational так, чтобы можно было сравнивать объекты класса Rational не только друг с другом, но и с целыми числами.
+
+При решении задания не используйте метод to_double, он введен в класс, в первую очередь, для удобства тестирования. Вы можете определять любые вспомогательные методы или функции если необходимо.
+
+Требования к реализации: ваш код не должен вводить или вводить что-либо, реализовывать функцию main не нужно.
+```C++
+struct Rational
+{
+    Rational(int numerator = 0, int denominator = 1);
+ 
+    void add(Rational rational);
+    void sub(Rational rational);
+    void mul(Rational rational);
+    void div(Rational rational);
+ 
+    void neg();
+    void inv();
+    double to_double() const;
+ 
+    Rational& operator+=(Rational rational);
+    Rational& operator-=(Rational rational);
+    Rational& operator*=(Rational rational);
+    Rational& operator/=(Rational rational);
+ 
+    Rational operator-() const;
+    Rational operator+() const;
+friend bool operator!=(Rational const & lhs, Rational const & rhs);
+    friend bool operator==(Rational const & lhs, Rational const & rhs);
+    friend bool operator<(Rational const & lhs, Rational const & rhs);
+    friend bool operator>(Rational lhs, Rational rhs);
+    friend bool operator<=(Rational lhs, Rational rhs);
+    friend bool operator>=(Rational lhs, Rational rhs);
+    
+private:
+    int numerator_;
+    int denominator_;
+};
+ 
+Rational operator+(Rational lhs, Rational rhs);
+Rational operator-(Rational lhs, Rational rhs);
+Rational operator*(Rational lhs, Rational rhs);
+Rational operator/(Rational lhs, Rational rhs);
+ 
+ 
+ bool operator==(Rational const & lhs, Rational const & rhs){
+return (((lhs.numerator_)==(rhs.numerator_)) && ((lhs.denominator_) == (rhs.denominator_)));
+}
+ bool operator!=(Rational const & lhs, Rational const & rhs){
+return !(lhs==rhs);
+}
+ bool operator<(Rational const & lhs, Rational const & rhs){
+return ((int)lhs.numerator_*(int)rhs.denominator_)<((int)rhs.numerator_*(int)lhs.denominator_);
+}
+ bool operator>(Rational lhs, Rational rhs){
+return rhs<lhs;
+}
+ bool operator<=(Rational lhs, Rational rhs){
+return !(lhs>rhs);
+}
+ bool operator>=(Rational lhs, Rational rhs){
+return !(lhs<rhs);
+}
+```
+---
+
+Добавьте в класс Rational оператор приведения к double. Все операторы из предыдущих заданий отсутствуют и реализовывать их не нужно. Метод to_double можно использовать в этом задании.
+
+Важное замечание: добавлять оператор преобразования к double в класс Rational не самая удачная идея, например, потому, что при таком преобразовании может происходить потеря точности. Эта задача дана исключительно с целью ознакомления с правильным порядком перегрузки таких операторов.
+
+Требования к реализации: ваш код не должен вводить или вводить что-либо, реализовывать функцию main не нужно.
+```c++
+struct Rational
+{
+    Rational(int numerator = 0, int denominator = 1);
+    
+    operator double() const{ return to_double(); }
+ 
+    void add(Rational rational);
+    void sub(Rational rational);
+    void mul(Rational rational);
+    void div(Rational rational);
+ 
+    void neg();
+    void inv();
+    double to_double() const;
+ 
+private:
+    int numerator_;
+    unsigned denominator_;
+};
+```
+
+---
+
+Помните иерархию Expression, которую мы разрабатывали на четвёртой неделе? Реализуйте ScopedPtr, который будет работать с указателями на базовый класс Expression. В этом задании вам требуется реализовать методы get, release и reset, операторы * и -> так, как это было описано в предыдущем степе. А также реализуйте конструктор ScopedPtr от указателя на Expression.
+
+Подсказка: в качестве признака того, что ScopedPtr не хранит никакого указателя (после вызова release), используйте нулевой указатель, при этом вы можете явно проверить указатель в деструкторе, но делать это не обязательно, так как delete от нулевого указателя ничего не делает.
+
+Требования к реализации: ваш код не должен вводить или вводить что-либо, реализовывать функцию main не нужно.
+```c++
+struct Expression;
+struct Number;
+struct BinaryOperation;
+ 
+struct ScopedPtr {
+    // реализуйте следующие методы:
+    //
+    explicit ScopedPtr(Expression *ptr = 0) {
+        this->ptr_=ptr;
+    }
+    ~ScopedPtr() {
+        delete  ptr_;
+    }
+    Expression* get() const {
+        return ptr_;
+    }
+    Expression* release() {
+        Expression * ptr = this->ptr_;
+        this->ptr_ = NULL;
+        return ptr;
+    }
+    void reset(Expression *ptr = 0) {
+        delete this->ptr_;
+        this->ptr_ = ptr;
+    }
+    Expression& operator*() const {
+        return *ptr_;
+    }
+    Expression* operator->() const {
+        return ptr_;
+    }
+private:
+    ScopedPtr& operator=(const ScopedPtr & other) {} //оператор присваивания
+    ScopedPtr(const ScopedPtr & other) {} //конструктор копирования
+    Expression *ptr_;
+};
+```
+
+---
+Реализуйте класс SharedPtr как описано ранее. Задание немного сложнее, чем кажется на первый взгляд. Уделите особое внимание "граничным случаям" — нулевой указатель, присваивание самому себе, вызов reset на нулевом SharedPtr и прочее.
+
+Подсказка: возможно, вам понадобится завести вспомогательную структуру.
+
+Требования к реализации: ваш код не должен вводить или вводить что-либо, реализовывать функцию main не нужно.
+```c++
+struct Expression;
+struct Number;
+struct BinaryOperation;
+ 
+struct Help {
+    Help(Expression *ptr=NULL) {
+        this->ptr = ptr;
+        cnt = 1;
+    }
+    ~Help() {
+        delete ptr;     
+    }
+    Expression * ptr;
+    mutable int cnt ;
+};
+ 
+struct SharedPtr {
+    // реализуйте следующие методы
+    //
+    explicit SharedPtr(Expression *ptr = 0) {
+        if(ptr != 0)
+            h = new Help(ptr);
+        else
+            h = NULL;
+    }
+    ~SharedPtr() {      
+        if(h!=NULL) {
+            --(h->cnt);
+            if(h->cnt == 0)
+                delete h;
+        }
+    }
+    SharedPtr(const SharedPtr & other) {
+        this->h = other.h;
+        if(this->h!=NULL && this->h->cnt)
+            ++(this->h->cnt);
+    }
+    SharedPtr& operator=(const SharedPtr & other) {
+        if(this!=&other){
+            this->~SharedPtr();
+            this->h = other.h;
+            if(this->h != NULL)
+                ++(this->h->cnt);
+        }
+    }
+    Expression* get() const {
+        if(this->h != NULL)
+            return this->h->ptr;
+        else
+            return NULL;
+    }
+    void reset(Expression *ptr = 0) {
+        this->~SharedPtr();
+        if(ptr != 0)
+            h = new Help(ptr);
+        else
+            h = NULL;
+    }
+    Expression& operator*() const {
+        if(this->h != NULL)
+            return *(this->h->ptr);
+        else
+            return *(Expression *)NULL;
+    }
+    Expression * operator->() const {
+        if(this->h != NULL)
+            return this->h->ptr;
+        else
+            return NULL;
+    }
+private:
+    Help * h=NULL;
+};
+```
+
+---
